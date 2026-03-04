@@ -6,6 +6,11 @@ import type { Response } from 'express';
 export class AppController {
   constructor(private readonly appService: AppService) { }
 
+  @Get('health')
+  async getHealth(@Res() res: Response,) {
+    res.send()
+  }
+
   @Get('countdown')
   async getCountdown(
     @Res() res: Response,
