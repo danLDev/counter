@@ -202,7 +202,7 @@ export class AppService implements OnModuleInit {
     }
   }
 
-  async getCounter(toParam: string): Promise<Buffer> {
+  async getCounter(): Promise<Buffer> {
     return this.latestGifBuffer
   }
 }

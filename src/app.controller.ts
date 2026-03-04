@@ -8,10 +8,9 @@ export class AppController {
 
   @Get('countdown')
   async getCountdown(
-    @Query('to') to: string,
     @Res() res: Response,
   ) {
-    const gifBuffer = await this.appService.getCounter(to);
+    const gifBuffer = await this.appService.getCounter();
 
     res.set({
       'Content-Type': 'image/gif',
