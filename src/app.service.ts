@@ -1,12 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as PImage from 'pureimage';
-// @ts-ignore
-import GIFEncoder from 'gif-encoder-2';
-import { PassThrough } from 'stream';
 import * as path from 'path';
 import { setInterval } from 'timers';
-import { performance } from 'perf_hooks'
-import { parentPort } from 'worker_threads';
 import { Worker } from 'worker_threads';
 
 const sizeMultiplier = 2;
@@ -136,14 +131,15 @@ export class AppService implements OnModuleInit {
     await this.buildInitialFrames(this.toDate)
 
 
-    this.encodeInBackground();
 
-    setInterval(() => {
-      this.rotateFrames();
+    setTimeout(() => {
       this.encodeInBackground();
-    }, 1000);
+      setInterval(() => {
+        this.rotateFrames();
+        this.encodeInBackground();
+      }, 1000);
 
-    console.log('built segments')
+    }, 30000)
   }
 
   private encodeInBackground() {
