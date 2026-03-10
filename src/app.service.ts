@@ -111,12 +111,11 @@ export class AppService implements OnModuleInit {
   }
 
   async onModuleInit() {
+    console.log('INIT M8')
     await this.ensureFontLoaded();
     this.worker = new Worker(path.join(__dirname, 'gif.worker.js'));
 
-
-    // @ts-ignore
-    this.worker!.on('message', (buffer: Buffer) => {
+    this.worker.on('message', (buffer: Buffer) => {
       console.log('WORKER MESSAGE')
       this.latestGifBuffer = buffer;
       this.isEncoding = false;
@@ -124,9 +123,6 @@ export class AppService implements OnModuleInit {
 
 
     [365, 24, 60].forEach(total => this.buildArcSegments(total));
-
-
-
 
     setTimeout(() => {
       this.buildInitialFrames(this.toDate).then(() => {
@@ -181,76 +177,38 @@ export class AppService implements OnModuleInit {
     total: number,
   ) {
 
+    const { ticks } = this.arcCache.get(total)!
+    const filledTicks = val;
 
-    const useArc = true;
+    ctx.strokeStyle = '#7FA6BE';
+    ctx.lineWidth = val < 70 ? 12 : 1;
 
-    if (useArc) {
+    for (let i = 0; i < filledTicks; i++) {
+      const { angleStart, angleEnd } = ticks[i];
+      // console.log('drawing arc ', i, ' of ', total, angleStart, angleEnd)
 
-      const { ticks } = this.arcCache.get(total)!
-      const filledTicks = val;
+      if (angleStart !== angleEnd) {
+        try {
 
-      ctx.strokeStyle = '#7FA6BE';
-      ctx.lineWidth = val < 70 ? 12 : 1;
+          const angle = (angleStart + angleEnd) / 2;
 
-      for (let i = 0; i < filledTicks; i++) {
-        const { angleStart, angleEnd } = ticks[i];
-        // console.log('drawing arc ', i, ' of ', total, angleStart, angleEnd)
+          const innerRadius = radius - 10; // length of tick
+          const outerRadius = radius;
 
-        if (angleStart !== angleEnd) {
-          try {
-
-            const angle = (angleStart + angleEnd) / 2;
-
-            const innerRadius = radius - 10; // length of tick
-            const outerRadius = radius;
-
-            const x1 = cx + innerRadius * Math.cos(angle);
-            const y1 = cy + innerRadius * Math.sin(angle);
-            const x2 = cx + outerRadius * Math.cos(angle);
-            const y2 = cy + outerRadius * Math.sin(angle);
+          const x1 = cx + innerRadius * Math.cos(angle);
+          const y1 = cy + innerRadius * Math.sin(angle);
+          const x2 = cx + outerRadius * Math.cos(angle);
+          const y2 = cy + outerRadius * Math.sin(angle);
 
 
-
-            // ctx.beginPath();
-            // ctx.arc(cx, cy, radius, angleStart, angleEnd);
-            // ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.stroke();
-          } catch { }
-        };
-      }
-    } else {
-
-      const segmentAngle = (2 * Math.PI) / total; // angle per tick
-      const startAngle = -Math.PI / 2; // top of circle
-
-      ctx.strokeStyle = '#7FA6BE';
-      ctx.lineWidth = 4;
-
-      for (let i = 0; i < val; i++) {
-        const angle = startAngle + i * segmentAngle;
-
-        // Use line segments instead of arcs
-        const innerRadius = radius - 10; // length of tick
-        const outerRadius = radius;
-
-        const x1 = cx + innerRadius * Math.cos(angle);
-        const y1 = cy + innerRadius * Math.sin(angle);
-        const x2 = cx + outerRadius * Math.cos(angle);
-        const y2 = cy + outerRadius * Math.sin(angle);
-
-        // Guard against zero-length lines
-        if (Math.abs(x1 - x2) < 0.001 && Math.abs(y1 - y2) < 0.001) continue;
-
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-      }
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+        } catch { }
+      };
     }
+
   }
 
   async getCounter(): Promise<Buffer> {
