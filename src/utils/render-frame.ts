@@ -20,7 +20,7 @@ export const renderFrame = (secondsRemaining: number) => {
 
 
     const values = [
-        [days, 365],
+        [days, 60],
         [hours, 24],
         [minutes, 60],
         [seconds, 60],

@@ -13,7 +13,7 @@ export const drawTickedArc = (
     const filledTicks = val;
 
     ctx.strokeStyle = '#7FA6BE';
-    ctx.lineWidth = val < 70 ? 12 : 1;
+    ctx.lineWidth = total === 24 ? 30 : 12;
 
     for (let i = 0; i < filledTicks; i++) {
         const { angleStart, angleEnd } = ticks[i];
