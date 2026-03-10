@@ -15,8 +15,8 @@ export class AppService implements OnModuleInit {
   private arcCache = new Map<number, { segmentAngle: number, tickAngle: number, ticks: { angleEnd: number, angleStart: number }[] }>()
   private toDate = new Date('2026-04-20T13:00:00');
   private frameBuffer: { frame: PImage.Bitmap, secondsRemaining: number }[] = [];
-  private maxFrames = 80;
-  private visibleFrames = 60;
+  private maxFrames = 60;
+  private visibleFrames = 40;
   private latestGifBuffer: Buffer;
   private isEncoding = false;
   private worker: Worker;
@@ -35,7 +35,6 @@ export class AppService implements OnModuleInit {
     this.frameBuffer.shift(); // remove oldest
     const latest = this.frameBuffer[this.frameBuffer.length - 1];
 
-    console.log(this.frameBuffer)
     const frame = this.renderFrame(latest.secondsRemaining - 1);
 
     this.frameBuffer.push({ frame, secondsRemaining: latest.secondsRemaining - 1 });
@@ -81,7 +80,6 @@ export class AppService implements OnModuleInit {
 
       // Draw ticked arc
       this.drawTickedArc(ctx, cx, centerY, circleRadius - 3, val, total);
-
       // Number
       ctx.fillStyle = '#6C94AC';
       ctx.font = `${50 * sizeMultiplier}pt PTSans`;
@@ -99,12 +97,11 @@ export class AppService implements OnModuleInit {
 
   private buildArcSegments(maxTicks: number) {
     const segmentAngle = (2 * Math.PI) / maxTicks;
-    const tickAngle = segmentAngle * (maxTicks >= 100 ? 0.3 : 0.7); // 30% of segment
+    const tickAngle = segmentAngle * 0.7; // 30% of segment
     const startAngle: number = -Math.PI / 2
 
     const ticks = [];
     for (let i = 0; i < maxTicks; i++) {
-
       const angleStart = startAngle + i * segmentAngle;
       const angleEnd = angleStart + tickAngle;
       ticks.push({ angleEnd, angleStart })
@@ -128,18 +125,21 @@ export class AppService implements OnModuleInit {
 
     [365, 24, 60].forEach(total => this.buildArcSegments(total));
 
-    await this.buildInitialFrames(this.toDate)
 
 
 
     setTimeout(() => {
-      this.encodeInBackground();
-      setInterval(() => {
-        this.rotateFrames();
-        this.encodeInBackground();
-      }, 1000);
+      this.buildInitialFrames(this.toDate).then(() => {
 
-    }, 30000)
+        this.encodeInBackground();
+        setInterval(() => {
+          this.rotateFrames();
+          this.encodeInBackground();
+        }, 1000);
+        console.log('Ready and listening')
+      })
+
+    }, 1000)
   }
 
   private encodeInBackground() {
@@ -181,20 +181,75 @@ export class AppService implements OnModuleInit {
     total: number,
   ) {
 
-    const { ticks } = this.arcCache.get(total)!
-    const filledTicks = val;
+
+    const useArc = true;
+
+    if (useArc) {
+
+      const { ticks } = this.arcCache.get(total)!
+      const filledTicks = val;
+
+      ctx.strokeStyle = '#7FA6BE';
+      ctx.lineWidth = val < 70 ? 12 : 1;
+
+      for (let i = 0; i < filledTicks; i++) {
+        const { angleStart, angleEnd } = ticks[i];
+        // console.log('drawing arc ', i, ' of ', total, angleStart, angleEnd)
+
+        if (angleStart !== angleEnd) {
+          try {
+
+            const angle = (angleStart + angleEnd) / 2;
+
+            const innerRadius = radius - 10; // length of tick
+            const outerRadius = radius;
+
+            const x1 = cx + innerRadius * Math.cos(angle);
+            const y1 = cy + innerRadius * Math.sin(angle);
+            const x2 = cx + outerRadius * Math.cos(angle);
+            const y2 = cy + outerRadius * Math.sin(angle);
 
 
 
-    ctx.strokeStyle = '#7FA6BE';
-    ctx.lineWidth = 6;
+            // ctx.beginPath();
+            // ctx.arc(cx, cy, radius, angleStart, angleEnd);
+            // ctx.stroke();
 
-    for (let i = 0; i < filledTicks; i++) {
-      const { angleStart, angleEnd } = ticks[i];
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+          } catch { }
+        };
+      }
+    } else {
 
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, angleStart, angleEnd);
-      ctx.stroke();
+      const segmentAngle = (2 * Math.PI) / total; // angle per tick
+      const startAngle = -Math.PI / 2; // top of circle
+
+      ctx.strokeStyle = '#7FA6BE';
+      ctx.lineWidth = 4;
+
+      for (let i = 0; i < val; i++) {
+        const angle = startAngle + i * segmentAngle;
+
+        // Use line segments instead of arcs
+        const innerRadius = radius - 10; // length of tick
+        const outerRadius = radius;
+
+        const x1 = cx + innerRadius * Math.cos(angle);
+        const y1 = cy + innerRadius * Math.sin(angle);
+        const x2 = cx + outerRadius * Math.cos(angle);
+        const y2 = cy + outerRadius * Math.sin(angle);
+
+        // Guard against zero-length lines
+        if (Math.abs(x1 - x2) < 0.001 && Math.abs(y1 - y2) < 0.001) continue;
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
     }
   }
 
