@@ -2,10 +2,13 @@
 import * as PImage from 'pureimage';
 import { HEIGHT, WIDTH, SIZE_MULTIPLIER, TOTAL_SECONDS, FROM_DATE, TO_DATE, TOTAL_DAYS } from '../constants';
 import { drawTickedArc } from './draw-ticked-arc';
+import fs from 'fs';
+import path from 'path';
+
+const planePath = path.join(process.cwd(), 'assets', 'plane.png');
 
 
-
-export const renderFrame = (secondsRemaining: number) => {
+export const renderFrame = async (secondsRemaining: number) => {
     const img = PImage.make(WIDTH, HEIGHT);
     const ctx = img.getContext('2d');
 
@@ -60,7 +63,7 @@ export const renderFrame = (secondsRemaining: number) => {
 
     const lineEnd = WIDTH - lineStart;
 
-    const lineY = 240 * SIZE_MULTIPLIER;
+    const lineY = 230 * SIZE_MULTIPLIER;
     ctx.strokeStyle = '#ffffff';
     ctx.beginPath()
     ctx.moveTo(lineStart, lineY);
@@ -81,6 +84,18 @@ export const renderFrame = (secondsRemaining: number) => {
     ctx.stroke()
 
 
+
+
+    // ---- Draw plane at end of progress bar ----
+    const planeImg = await PImage.decodePNGFromStream(fs.createReadStream(planePath));
+    const planeWidth = 30 * SIZE_MULTIPLIER;
+    const planeHeight = 20 * SIZE_MULTIPLIER;
+
+    // X position: progress bar start + progress length
+    const planeX = lineStart + length * percentCompleted + 5;
+    const planeY = lineY - planeHeight / 2;
+
+    ctx.drawImage(planeImg, planeX, planeY, planeWidth, planeHeight);
 
     return img;
 }

@@ -5,7 +5,7 @@ export const WIDTH = 800 * SIZE_MULTIPLIER;
 export const HEIGHT = 250 * SIZE_MULTIPLIER;
 export const ARC_CACHE = new Map<number, { segmentAngle: number, tickAngle: number, ticks: { angleEnd: number, angleStart: number }[] }>()
 export const TO_DATE = new Date('2026-04-20T13:00:00');
-export const FROM_DATE = new Date('2026-03-09T13:00:00');
+export const FROM_DATE = new Date('2025-12-25T13:00:00');
 export const TOTAL_SECONDS = Math.floor((TO_DATE.getTime() - FROM_DATE.getTime()) / 1000);
 export const TOTAL_DAYS = Math.floor((TO_DATE.getTime() - FROM_DATE.getTime()) / (1000 * 60 * 60 * 24))
 

@@ -15,7 +15,7 @@ const height = 250 * sizeMultiplier;
 
 const visibleFrames = 60;
 
-const generate = () => {
+const generate = async () => {
   console.log('Worker: Generating image buffer')
   const encoder = new GIFEncoder(width, height);
   encoder.start();
@@ -38,7 +38,7 @@ const generate = () => {
 
 
   for (let i = 0; i < visibleFrames; i++) {
-    const frame = renderFrame(remainingSeconds - i);
+    const frame = await renderFrame(remainingSeconds - i);
     encoder.addFrame(frame.data);
   }
 
