@@ -121,6 +121,9 @@ export class AppService implements OnModuleInit {
       this.isEncoding = false;
     });
 
+    this.worker.on('exit', console.log);
+    this.worker.on('error', console.log);
+    this.worker.on('messageerror', console.log);
 
     [365, 24, 60].forEach(total => this.buildArcSegments(total));
 
