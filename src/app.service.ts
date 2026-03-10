@@ -15,8 +15,8 @@ export class AppService implements OnModuleInit {
   private arcCache = new Map<number, { segmentAngle: number, tickAngle: number, ticks: { angleEnd: number, angleStart: number }[] }>()
   private toDate = new Date('2026-04-20T13:00:00');
   private frameBuffer: { frame: PImage.Bitmap, secondsRemaining: number }[] = [];
-  private maxFrames = 60;
-  private visibleFrames = 40;
+  private maxFrames = 30;
+  private visibleFrames = 20;
   private latestGifBuffer: Buffer;
   private isEncoding = false;
   private worker: Worker;
