@@ -13,9 +13,10 @@ const width = 800 * sizeMultiplier;
 const height = 250 * sizeMultiplier;
 const toDate = new Date('2026-04-20T13:00:00');
 
-const visibleFrames = 30;
+const visibleFrames = 60;
 
 const generate = () => {
+  console.log('Worker: Generating image buffer')
   const encoder = new GIFEncoder(width, height);
   encoder.start();
   encoder.setRepeat(0);
