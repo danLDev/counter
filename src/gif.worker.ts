@@ -7,11 +7,11 @@ import { PassThrough } from 'stream';
 import { renderFrame } from './utils/render-frame';
 import * as path from 'path';
 import * as PImage from 'pureimage';
+import { TO_DATE } from './constants';
 
 const sizeMultiplier = 2;
 const width = 800 * sizeMultiplier;
 const height = 250 * sizeMultiplier;
-const toDate = new Date('2026-04-20T13:00:00');
 
 const visibleFrames = 60;
 
@@ -23,7 +23,12 @@ const generate = () => {
   encoder.setDelay(1000);
   encoder.setQuality(10);
   const now = new Date();
-  const totalSeconds = Math.floor((toDate.getTime() - now.getTime()) / 1000);
+
+  const nowSeconds = now.getTime() / 1000
+  const toSeconds = TO_DATE.getTime() / 1000
+
+  const remainingSeconds = Math.floor(toSeconds - nowSeconds);
+
 
   const stream = new PassThrough();
   encoder.createReadStream().pipe(stream);
@@ -33,7 +38,7 @@ const generate = () => {
 
 
   for (let i = 0; i < visibleFrames; i++) {
-    const frame = renderFrame(totalSeconds - i);
+    const frame = renderFrame(remainingSeconds - i);
     encoder.addFrame(frame.data);
   }
 

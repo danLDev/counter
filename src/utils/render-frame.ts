@@ -1,6 +1,6 @@
 
 import * as PImage from 'pureimage';
-import { HEIGHT, WIDTH, SIZE_MULTIPLIER } from '../constants';
+import { HEIGHT, WIDTH, SIZE_MULTIPLIER, TOTAL_SECONDS, FROM_DATE, TO_DATE, TOTAL_DAYS } from '../constants';
 import { drawTickedArc } from './draw-ticked-arc';
 
 
@@ -18,9 +18,8 @@ export const renderFrame = (secondsRemaining: number) => {
     ctx.fillStyle = '#F2F2F2';
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-
     const values = [
-        [days, 60],
+        [days, TOTAL_DAYS],
         [hours, 24],
         [minutes, 60],
         [seconds, 60],
@@ -55,6 +54,33 @@ export const renderFrame = (secondsRemaining: number) => {
         ctx.font = `${20 * SIZE_MULTIPLIER}pt PTSans`;
         ctx.fillText(labels[index], cx, centerY + (40 * SIZE_MULTIPLIER));
     });
+
+
+    const lineStart = startX - 50
+
+    const lineEnd = WIDTH - lineStart;
+
+    const lineY = 240 * SIZE_MULTIPLIER;
+    ctx.strokeStyle = '#ffffff';
+    ctx.beginPath()
+    ctx.moveTo(lineStart, lineY);
+    ctx.lineTo(lineEnd, lineY);
+    ctx.stroke()
+
+    const length = lineEnd - lineStart;
+
+
+    const percentCompleted = 1 - (secondsRemaining / TOTAL_SECONDS);
+
+    console.log('percentCompleted')
+
+    ctx.strokeStyle = '#7FA6BE';
+    ctx.beginPath()
+    ctx.moveTo(lineStart, lineY);
+    ctx.lineTo(lineStart + length * percentCompleted, lineY);
+    ctx.stroke()
+
+
 
     return img;
 }
