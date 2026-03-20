@@ -10,6 +10,7 @@ export const TOTAL_SECONDS = Math.floor((TO_DATE.getTime() - FROM_DATE.getTime()
 export const TOTAL_DAYS = Math.floor((TO_DATE.getTime() - FROM_DATE.getTime()) / (1000 * 60 * 60 * 24))
 
 console.log('totalDays', TOTAL_DAYS)
+console.log('toDate', '2026-04-20T12:35:00')
 
 const buildArcSegments = (maxTicks: number) => {
     const segmentAngle = (2 * Math.PI) / maxTicks;
